@@ -3,11 +3,8 @@ package Mecanismo;
 public class Token {
 
     private String token;
-
     private String lexema;
-
     private String tipo;
-
     private String descricao;
 
     private int endereco;
