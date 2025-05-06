@@ -5,7 +5,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -24,55 +23,44 @@ public class Executor {
     private ArrayList<String> bufferSecundario;
 
     private HashMap<String, Token> tabelaSimbolosPrograma;
+    private HashMap<String, Token> tabelaSimbolosLinguagem;
+    private Definicoes definicoes;
 
-    private boolean IsNumber(String valor)
-    {
+    public Executor() {
+        this.tabelaSimbolosLinguagem = new TabelaSimbolosLinguagem().getTabela();
+        this.definicoes = new Definicoes();
+        this.tabelaSimbolosPrograma = new HashMap<>();
+    }
+
+    private boolean IsNumber(String valor) {
         Pattern pattern = Pattern.compile(this.captureNumbers);
         Matcher matcher = pattern.matcher(valor);
         return matcher.find() == true;
     }
 
-    private boolean IsLiteral(String valor)
-    {
+    private boolean IsLiteral(String valor) {
         Pattern pattern = Pattern.compile(this.captureLiteral);
         Matcher matcher = pattern.matcher(valor);
         return matcher.find() == true;
     }
 
-    private boolean IsCharacter(String valor)
-    {
+    private boolean IsCharacter(String valor) {
         Pattern pattern = Pattern.compile(this.captureCharacters);
         Matcher matcher = pattern.matcher(valor);
         return matcher.find() == true;
     }
 
-    private boolean IsIdentifier(String valor)
-    {
+    private boolean IsIdentifier(String valor) {
         Pattern pattern = Pattern.compile(this.captureIdentifier);
         Matcher matcher = pattern.matcher(valor);
         return matcher.find() == true;
     }
 
-/*     public void CarregarArquivo(){
-        System.out.println("----------------------------------------");
-        System.out.println("##### Carregar Arquivo Pascal #####");
-        Scanner scanner = new Scanner(System.in);
-        System.out.print("Digite o diretório do arquivo: ");
-        String diretorio = scanner.next();
-        System.out.print("Digite o nome do arquivo (com extensão .pas): ");
-        String nomeArquivo = scanner.next();
-        String caminhoCompleto = diretorio + "/" + nomeArquivo;
-        this.CarregarBufferPrimario(caminhoCompleto);
-        scanner.close();        
-    } */
-
-    public void CarregarArquivo(String caminhoCompleto){
-        System.out.println("----------------------------------------");
-        System.out.println("##### Carregar Arquivo Pascal #####");
+    public void CarregarArquivo(String caminhoCompleto) {
         this.CarregarBufferPrimario(caminhoCompleto);
     }
 
-    private void CarregarBufferPrimario(String caminhoCompleto){
+    private void CarregarBufferPrimario(String caminhoCompleto) {
         this.reader = null;
         try {
             this.reader = new BufferedReader(new FileReader(caminhoCompleto));
@@ -81,7 +69,7 @@ public class Executor {
         }
     }
 
-    public void ProcessarBufferPrimario(){
+    public void ProcessarBufferPrimario() {
         this.bufferPrimario = new ArrayList<>();
         try {
             String linha;
@@ -101,17 +89,16 @@ public class Executor {
         }
     }
 
-    public void ImprimirBufferPrimario(){
-        System.out.println("----------------------------------------");
-        System.out.println("##### Conteúdo do Buffer primário: #####");
+    public void ImprimirBufferPrimario() {
+        System.out.println("## Conteúdo do Buffer primário: ##");
+        System.out.println("");
         for (String texto : this.bufferPrimario) {
             System.out.println(texto);
         }
         System.out.println("----------------------------------------");        
     }
 
-    public void ProcessarBufferSecundario()
-    {        
+    public void ProcessarBufferSecundario() {        
         this.capture = captureComment.concat("|")
             .concat(captureNumbers).concat("|")
             .concat(captureLiteral).concat("|")
@@ -134,24 +121,81 @@ public class Executor {
         bufferSecundario.removeIf(value -> value.startsWith("//") || value.startsWith("(*"));
     } 
     
-    public void ImprimirBufferSecundario(){
-        System.out.println("----------------------------------------");
-        System.out.println("##### Conteúdo do Buffer secundário: #####");
+    public void ImprimirBufferSecundario() {
+        System.out.println("## Conteúdo do Buffer secundário: ##");
+        System.out.println("");
         for (String texto : this.bufferSecundario) {
             System.out.println(texto);
         }
         System.out.println("----------------------------------------");        
     }
 
-    public void AnalisarMontandoTabelaSimbolos(){
-        //AQUI É QUE ENTRA O TRABALHO DE VCS.
-        //1 - Precisa da Tabela de Simbolos do programa.
-        //2 - Precisa da Tabela de Simbolos da linguagem.
-        //3 - Precisa varrer o buffer secundário, para localizar os tokens, definindo o que é cada um dos lexemas.
+    public void AnalisarMontandoTabelaSimbolos() {
+        if (this.bufferSecundario == null) return;
+    
+        for (String lexema : this.bufferSecundario) {
+            Token token = identificarToken(lexema);
+            this.tabelaSimbolosPrograma.put(lexema, token);
+        }
+    }
+    
+    private Token identificarToken(String lexema) {
+        String lexemaLower = lexema.toLowerCase();
+    
+        if (this.tabelaSimbolosLinguagem.containsKey(lexemaLower)) {
+            Token original = this.tabelaSimbolosLinguagem.get(lexemaLower);
+            return new Token(
+                original.getToken(),
+                lexema,
+                original.getTipo(),
+                original.getDescricao(),
+                original.getEndereco()
+            );
+        }
+    
+        if (IsNumber(lexema)) {
+            return new Token(null, lexema, definicoes.getNumber(), "Número", 0);
+        }
+        if (IsLiteral(lexema)) {
+            return new Token(null, lexema, definicoes.getLiteral(), "Literal", 0);
+        }
+        if (IsIdentifier(lexema)) {
+            return new Token(null, lexema, definicoes.getIdentifier(), "Identificador", 0);
+        }
+        if (IsCharacter(lexema)) {
+            return new Token(null, lexema, definicoes.getSimbol(), "Símbolo", 0);
+        }
+    
+        return new Token(null, lexema, definicoes.getUndefined(), "Desconhecido", 0);
     }
 
-    public void ImprimirTabelaSimbolosPrograma(){
-        //A parte final, na qual vc imprime todas as entradas da Tabela de Simbolos do programa, após o processamento.
+    public void ImprimirTabelaSimbolosPrograma() {
+        System.out.println("## Tabela de Símbolos do Programa: ##");
+        System.out.println("");
+
+        if (tabelaSimbolosPrograma == null || tabelaSimbolosPrograma.isEmpty()) {
+            System.out.println("Tabela de símbolos do programa está vazia ou não foi processada.");
+            System.out.println("Execute AnalisarMontandoTabelaSimbolos() primeiro.");
+            System.out.println("----------------------------------------");
+            return;
+        }
+    
+        if (bufferSecundario == null) {
+            System.out.println("Buffer secundário é nulo, não é possível imprimir em ordem.");
+            System.out.println("----------------------------------------");
+            return;
+        }
+    
+        for (String lexema : bufferSecundario) {
+            Token token = tabelaSimbolosPrograma.get(lexema);
+            if (token != null) {
+                System.out.println(token);
+            } else {
+                System.out.println("Lexema não encontrado na tabela de símbolos: " + lexema);
+            }
+        }
+    
+        System.out.println("----------------------------------------");
     }
 
 }
