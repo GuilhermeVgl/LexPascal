@@ -9,6 +9,7 @@ public class TokenFactory {
             .lexema(novoLexema)
             .tipo(original.getTipo())
             .descricao(original.getDescricao())
+            .endereco(original.getEndereco())
             .build();
     }
 }

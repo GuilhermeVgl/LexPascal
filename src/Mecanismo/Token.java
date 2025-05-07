@@ -14,6 +14,7 @@ public class Token {
         this.lexema = builder.lexema;
         this.tipo = builder.tipo;
         this.descricao = builder.descricao;
+        this.endereco = builder.endereco;
     }
 
     public static class Builder {
@@ -21,6 +22,7 @@ public class Token {
         private String lexema;
         private String tipo;
         private String descricao;
+        private int endereco;
 
         public Builder token(String token) {
             this.token = token;
@@ -39,6 +41,11 @@ public class Token {
 
         public Builder descricao(String descricao) {
             this.descricao = descricao;
+            return this;
+        }
+
+        public Builder endereco(int endereco) {
+            this.endereco = endereco;
             return this;
         }
 
