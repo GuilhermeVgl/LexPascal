@@ -5,10 +5,12 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import Factory.TokenFactory;
+import Util.RemoveCommentBlockUtil;
 
 public class Executor {
 
@@ -108,18 +110,19 @@ public class Executor {
             .concat(captureWords).concat("|")
             .concat(captureCharacters);
 
-        Pattern pattern = Pattern.compile(this.capture);
+        List<String> linhasSemComentarios = RemoveCommentBlockUtil.removerComentarios(bufferPrimario);
 
-        for (String texto : bufferPrimario) {
+        Pattern pattern = Pattern.compile(this.capture);
+        
+        for (String texto : linhasSemComentarios) {
             Matcher matcher = pattern.matcher(texto);
-            while(matcher.find()){
+            while (matcher.find()) {
                 String lexema = matcher.group();
-                if (this.bufferSecundario.contains(lexema) == false){
+                if (!this.bufferSecundario.contains(lexema)) {
                     this.bufferSecundario.add(lexema);
                 }
             }
         }
-        bufferSecundario.removeIf(value -> value.startsWith("//") || value.startsWith("(*"));
     } 
     
     public void ImprimirBufferSecundario() {
