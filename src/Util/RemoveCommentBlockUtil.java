@@ -4,7 +4,7 @@ package Util;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RemoveCommentBlock {
+public class RemoveCommentBlockUtil {
     public static List<String> removerComentarios(List<String> linhas) {
         List<String> resultado = new ArrayList<>();
         boolean dentroBloco = false;
