@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import Factory.TokenFactory;
+
 public class Executor {
 
     private final String captureComment = "\\/\\/.*|\\(\\*(?:.|\\s)*\\*\\)";
@@ -30,6 +32,8 @@ public class Executor {
         this.tabelaSimbolosLinguagem = new TabelaSimbolosLinguagem().getTabela();
         this.definicoes = new Definicoes();
         this.tabelaSimbolosPrograma = new HashMap<>();
+        this.bufferPrimario = new ArrayList<>();
+        this.bufferSecundario = new ArrayList<>();
     }
 
     private boolean IsNumber(String valor) {
@@ -70,7 +74,6 @@ public class Executor {
     }
 
     public void ProcessarBufferPrimario() {
-        this.bufferPrimario = new ArrayList<>();
         try {
             String linha;
             while ((linha = this.reader.readLine()) != null) {
@@ -104,8 +107,6 @@ public class Executor {
             .concat(captureLiteral).concat("|")
             .concat(captureWords).concat("|")
             .concat(captureCharacters);
-
-        this.bufferSecundario = new ArrayList<>();
 
         Pattern pattern = Pattern.compile(this.capture);
 
@@ -144,13 +145,7 @@ public class Executor {
     
         if (this.tabelaSimbolosLinguagem.containsKey(lexemaLower)) {
             Token original = this.tabelaSimbolosLinguagem.get(lexemaLower);
-            return new Token(
-                original.getToken(),
-                lexema,
-                original.getTipo(),
-                original.getDescricao(),
-                original.getEndereco()
-            );
+            return TokenFactory.fromOriginalWithNewLexema(original, lexema);
         }
     
         if (IsNumber(lexema)) {

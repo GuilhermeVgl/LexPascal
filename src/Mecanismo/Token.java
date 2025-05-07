@@ -9,6 +9,44 @@ public class Token {
 
     private int endereco;
 
+    private Token(Builder builder) {
+        this.token = builder.token;
+        this.lexema = builder.lexema;
+        this.tipo = builder.tipo;
+        this.descricao = builder.descricao;
+    }
+
+    public static class Builder {
+        private String token;
+        private String lexema;
+        private String tipo;
+        private String descricao;
+
+        public Builder token(String token) {
+            this.token = token;
+            return this;
+        }
+
+        public Builder lexema(String lexema) {
+            this.lexema = lexema;
+            return this;
+        }
+
+        public Builder tipo(String tipo) {
+            this.tipo = tipo;
+            return this;
+        }
+
+        public Builder descricao(String descricao) {
+            this.descricao = descricao;
+            return this;
+        }
+
+        public Token build() {
+            return new Token(this);
+        }
+    }
+
     public String getToken() {
         return token;
     }
