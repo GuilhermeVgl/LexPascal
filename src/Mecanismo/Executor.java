@@ -152,19 +152,19 @@ public class Executor {
         }
     
         if (IsNumber(lexema)) {
-            return new Token(null, lexema, definicoes.getNumber(), "Número", 0);
+            return new Token(lexema, lexema, definicoes.getNumber(), "Número", 0);
         }
         if (IsLiteral(lexema)) {
-            return new Token(null, lexema, definicoes.getLiteral(), "Literal", 0);
+            return new Token(lexema, lexema, definicoes.getLiteral(), "Literal", 0);
         }
         if (IsIdentifier(lexema)) {
-            return new Token(null, lexema, definicoes.getIdentifier(), "Identificador", 0);
+            return new Token(lexema, lexema, definicoes.getIdentifier(), "Identificador", 0);
         }
         if (IsCharacter(lexema)) {
-            return new Token(null, lexema, definicoes.getSimbol(), "Símbolo", 0);
+            return new Token(lexema, lexema, definicoes.getSimbol(), "Símbolo", 0);
         }
     
-        return new Token(null, lexema, definicoes.getUndefined(), "Desconhecido", 0);
+        return new Token(lexema, lexema, definicoes.getUndefined(), "Desconhecido", 0);
     }
 
     public void ImprimirTabelaSimbolosPrograma() {
